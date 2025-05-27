@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Villes de {{ country.country }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 
+                0 25px 45px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .breadcrumb-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb-link:hover {
+            color: #764ba2;
+        }
+
+        .breadcrumb-separator {
+            color: #d1d5db;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .country-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: 16px 24px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .country-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .city-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .city-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .city-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 20px 35px rgba(0, 0, 0, 0.12),
+                0 0 0 1px rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .city-item:hover::before {
+            left: 100%;
+        }
+
+        .city-icon {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .city-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state .message {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .empty-state .submessage {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(107, 114, 128, 0.2);
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-back::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-back:hover::before {
+            left: 100%;
+        }
+
+        .stats {
+            text-align: right;
+            color: #6b7280;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .count {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+            
+            .glass-card {
+                padding: 24px;
+                border-radius: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .cities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            
+            .breadcrumb {
+                flex-wrap: wrap;
+            }
+        }
+
+        .search-section {
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        .city-items-container {
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .city-items-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .city-items-container::-webkit-scrollbar-track {
+            background: rgba(107, 114, 128, 0.1);
+            border-radius: 3px;
+        }
+
+        .city-items-container::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 3px;
+        }
+
+        .city-items-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glass-card">
+            <div class="header">
+                <div class="breadcrumb">
+                    <a href="{% url 'country_list' %}" class="breadcrumb-link">🌍 Pays</a>
+                    <span class="breadcrumb-separator">›</span>
+                    <span>🏙️ Villes</span>
+                </div>
+                <h1>Villes de {{ country.country }}</h1>
+                
+                <div class="country-info">
+                    <div class="country-name">
+                        🏴󠁧󠁢󠁥󠁮󠁧󠁿 {{ country.country }}
+                    </div>
+                </div>
+            </div>
+            
+            {% if cities %}
+            <div class="search-section">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Rechercher une ville..." id="citySearch">
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="city-items-container">
+                <ul class="cities-grid" id="citiesList">
+                    {% for city in cities %}
+                        <li class="city-item" data-city="{{ city.city|lower }}">
+                            <span class="city-icon">🏙️</span>
+                            <span class="city-name">{{ city.city }}</span>
+                        </li>
+                    {% empty %}
+                        <li class="empty-state">
+                            <div class="icon">🏜️</div>
+                            <div class="message">Aucune ville trouvée</div>
+                            <div class="submessage">Ce pays ne contient aucune ville dans notre base de données</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="navigation">
+                <a href="{% url 'country_list' %}" class="btn-back">
+                    <span>←</span>
+                    Retour aux pays
+                </a>
+                
+                {% if cities %}
+                <div class="stats">
+                    <span class="count" id="cityCount">{{ cities|length }}</span> 
+                    <span id="cityText">villes trouvées</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction de recherche en temps réel
+        const searchInput = document.getElementById('citySearch');
+        const citiesList = document.getElementById('citiesList');
+        const cityCount = document.getElementById('cityCount');
+        const cityText = document.getElementById('cityText');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const cityItems = citiesList.querySelectorAll('.city-item');
+                let visibleCount = 0;
+                
+                cityItems.forEach(item => {
+                    const cityName = item.getAttribute('data-city');
+                    if (cityName && cityName.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Mise à jour du compteur
+                if (cityCount) {
+                    cityCount.textContent = visibleCount;
+                    cityText.textContent = visibleCount === 1 ? 'ville trouvée' : 'villes trouvées';
+                }
+                
+                // Afficher un message si aucun résultat
+                const emptyMessage = citiesList.querySelector('.no-results');
+                if (visibleCount === 0 && searchTerm !== '') {
+                    if (!emptyMessage) {
+                        const noResults = document.createElement('li');
+                        noResults.className = 'empty-state no-results';
+                        noResults.innerHTML = `
+                            <div class="icon">🔍</div>
+                            <div class="message">Aucune ville trouvée</div>
+                            <div class="submessage">Essayez avec un autre terme de recherche</div>
+                        `;
+                        citiesList.appendChild(noResults);
+                    }
+                } else if (emptyMessage) {
+                    emptyMessage.remove();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

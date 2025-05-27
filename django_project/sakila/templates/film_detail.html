@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détails du film - {{ film.title }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0; padding: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 60px auto;
+            background-color: #fff;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .description {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .actors span {
+            display: inline-block;
+            background-color: #e0f7fa;
+            color: #00796b;
+            padding: 6px 10px;
+            margin: 4px;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+        a.btn-back {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        a.btn-back:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ film.title }}</h1>
+        <div class="description">{{ film.description|default:"Pas de description disponible." }}</div>
+        <div class="actors">
+            <strong>Acteurs :</strong>
+            {% for actor in film.actors.all %}
+                <span>{{ actor.first_name }} {{ actor.last_name }}</span>
+            {% empty %}
+                <span>Aucun acteur trouvé.</span>
+            {% endfor %}
+        </div>
+        <a href="{% url 'film_list' %}" class="btn-back">← Retour à la liste des films</a>
+    </div>
+</body>
+</html>
